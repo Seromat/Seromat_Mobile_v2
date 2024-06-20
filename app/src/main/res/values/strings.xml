@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">SeromatUpgrade</string>
+    <string name="title_home">Home</string>
+    <string name="title_manual_regulation">Manual Regulation</string>
+    <string name="title_settings">Settings</string>
+    <string name="settings_text_ip">Seromat\'s IP Address:</string>
+    <string name="settings_text_interval">Measurement interval (in milliseconds):</string>
+    <string name="enter_seconds">Enter seconds</string>
+    <string name="enter_ip_address">Enter IP Address</string>
+    <string name="manual_text">Set manual regulation parameters</string>
+    <string name="manual_lb">Low Boundary</string>
+    <string name="manual_ub">High Boundary</string>
+    <string name="manual_text_temperature">Temperature [\u2103]</string>
+    <string name="manual_text_humidity">Humidity [%]</string>
+    <string name="ex_15">Ex. 15</string>
+    <string name="ex_25">Ex. 25</string>
+    <string name="ex_50">Ex. 50</string>
+    <string name="ex_80">Ex. 80</string>
+    <string name="manual_text_button">Confirm changes</string>
+    <string name="settings_text_button">Save settings</string>
+    <string name="settings">Settings</string>
+    <string name="manual_regulation">Manual Regulation</string>
+    <string name="home">Home</string>
+    <string name="home_empty">-</string>
+    <string name="current_temperature">Current temperature:</string>
+    <string name="current_humidity">Current humidity:</string>
+    <string name="timestamp">Timestamp:</string>
+</resources>
