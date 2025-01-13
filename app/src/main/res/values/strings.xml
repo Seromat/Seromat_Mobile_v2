@@ -8,14 +8,14 @@
     <string name="enter_seconds">Enter seconds</string>
     <string name="enter_ip_address">Enter IP Address</string>
     <string name="manual_text">Set manual regulation parameters</string>
-    <string name="manual_lb">Low Boundary</string>
-    <string name="manual_ub">High Boundary</string>
+    <string name="manual_lb">Set point</string>
+    <string name="manual_ub">Tolerance</string>
     <string name="manual_text_temperature">Temperature [\u2103]</string>
     <string name="manual_text_humidity">Humidity [%]</string>
-    <string name="ex_15">Ex. 15</string>
-    <string name="ex_25">Ex. 25</string>
-    <string name="ex_50">Ex. 50</string>
-    <string name="ex_80">Ex. 80</string>
+    <string name="ex_15">Ex. 12</string>
+    <string name="ex_25">Ex. 80</string>
+    <string name="ex_50">Ex. 2</string>
+    <string name="ex_80">Ex. 8</string>
     <string name="manual_text_button">Confirm changes</string>
     <string name="settings_text_button">Save settings</string>
     <string name="settings">Settings</string>
@@ -24,5 +24,6 @@
     <string name="home_empty">-</string>
     <string name="current_temperature">Current temperature:</string>
     <string name="current_humidity">Current humidity:</string>
+    <string name="avg_humidity">Avg. humidity (~25 minutes):</string>
     <string name="timestamp">Timestamp:</string>
 </resources>

@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/editTextTempLb"
+        android:id="@+id/editTextTempSp"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginTop="16dp"
@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextHumLb"
+        android:id="@+id/editTextHumSp"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginTop="4dp"
@@ -51,7 +51,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.312"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTempLb" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextTempSp" />
 
     <TextView
         android:id="@+id/textViewTempHb"
@@ -65,7 +65,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTempHb"
+        android:id="@+id/editTextTempH"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginTop="16dp"
@@ -85,10 +85,10 @@
         android:text="@string/manual_ub"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTempHb" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextTempH" />
 
     <EditText
-        android:id="@+id/editTextHumHb"
+        android:id="@+id/editTextHumH"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginTop="4dp"

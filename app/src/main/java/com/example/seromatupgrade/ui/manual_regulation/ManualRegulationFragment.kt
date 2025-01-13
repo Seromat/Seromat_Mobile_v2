@@ -15,6 +15,10 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.google.gson.Gson
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import kotlin.concurrent.thread
@@ -22,10 +26,17 @@ import kotlin.concurrent.thread
 class ManualRegulationFragment : Fragment() {
 
     private lateinit var buttonConfirmChanges: Button
-    private lateinit var editTextTempLb: EditText
-    private lateinit var editTextTempHb: EditText
-    private lateinit var editTextHumLb: EditText
-    private lateinit var editTextHumHb: EditText
+    private lateinit var editTextTempSp: EditText
+    private lateinit var editTextTempH: EditText
+    private lateinit var editTextHumSp: EditText
+    private lateinit var editTextHumH: EditText
+
+    data class Parameters(
+        val TempSp: Double,
+        val TempH: Double,
+        val HumSp: Double,
+        val HumH: Double
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,10 +46,10 @@ class ManualRegulationFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_manual_regulation, container, false)
 
         buttonConfirmChanges = root.findViewById(R.id.changeButton)
-        editTextTempLb = root.findViewById(R.id.editTextTempLb)
-        editTextTempHb = root.findViewById(R.id.editTextTempHb)
-        editTextHumLb = root.findViewById(R.id.editTextHumLb)
-        editTextHumHb = root.findViewById(R.id.editTextHumHb)
+        editTextTempSp = root.findViewById(R.id.editTextTempSp)
+        editTextTempH = root.findViewById(R.id.editTextTempH)
+        editTextHumSp = root.findViewById(R.id.editTextHumSp)
+        editTextHumH = root.findViewById(R.id.editTextHumH)
 
         buttonConfirmChanges.setOnClickListener {
             if (!verifyParameters()) {
@@ -48,40 +59,91 @@ class ManualRegulationFragment : Fragment() {
             val client = OkHttpClient()
             thread {
                 try {
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) {
-                            showToast("Request failed: ${response.message}")
-                        } else {
-                            showToast("Parameters set successfully")
+                    if (request != null) {
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) {
+                                showToast("Fail: ${response.message}")
+                            } else {
+                                showToast("Parameters set successfully")
+                            }
                         }
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    showToast("Network error: ${e.message}")
+                    showToast("Error: ${e.message}")
                 }
             }
         }
         return root
     }
 
-    private fun setParametersRequest(): Request {
-        val lbTemp = editTextTempLb.text.toString()
-        val hbTemp = editTextTempHb.text.toString()
-        val lbHum = editTextHumLb.text.toString()
-        val hbHum = editTextHumHb.text.toString()
+    override fun onStart() {
+
+        val syf = OkHttpClient()
+        val request = GetParametersRequest()
+
+        syf.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.i("Response", "Received Response from server")
+
+                response.use {
+                    if (!response.isSuccessful) {
+                        Log.e("HTTP Error", "HTTP response unsuccessful")
+                        return@use
+                    }
+                    val body = response.body?.string()
+                    val gson = Gson()
+                    val regulatorData = gson.fromJson(body, Parameters::class.java)
+                    requireActivity().runOnUiThread {
+                        editTextTempSp.setText(regulatorData.TempSp.toString())
+                        editTextTempH.setText(regulatorData.TempH.toString())
+                        editTextHumSp.setText(regulatorData.HumSp.toString())
+                        editTextHumH.setText(regulatorData.HumH.toString())
+                    }
+                }
+            }
+        })
+        super.onStart()
+
+    }
+
+    fun GetParametersRequest(): Request {
 
         val sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
         val ipAddress = sharedPreferences.getString("ipAddress", "127.0.0.1") ?: "127.0.0.1"
 
-        val url = "http://$ipAddress:5000/set_parameters"
+        val URL: String = "http://$ipAddress:5000/parameters"
 
-        val json = JSONObject().apply {
-            put("temp_lb", lbTemp)
-            put("temp_ub", hbTemp)
-            put("hum_lb", lbHum)
-            put("hum_ub", hbHum)
+        val request = Request.Builder()
+            .url(URL)
+            .build()
+        return request
+    }
+
+    private fun setParametersRequest(): Request? {
+
+        if (!isAdded) {
+            Log.e("ManualRegulationFragment", "Fragment is not added to an activity.")
+            return null
         }
 
+        val tempSp = editTextTempSp.text.toString().toDoubleOrNull() ?: 0.0
+        val tempH = editTextTempH.text.toString().toDoubleOrNull() ?: 0.0
+        val humSp = editTextHumSp.text.toString().toDoubleOrNull() ?: 0.0
+        val humH = editTextHumH.text.toString().toDoubleOrNull() ?: 0.0
+
+        val sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        val ipAddress = sharedPreferences.getString("ipAddress", "127.0.0.1") ?: "127.0.0.1"
+
+        val url = "http://$ipAddress:5000/parameters"
+
+        val parameters = Parameters(tempSp, tempH, humSp, humH)
+        val gson = Gson()
+        val json = gson.toJson(parameters)
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = json.toString().toRequestBody(mediaType)
 
@@ -92,43 +154,33 @@ class ManualRegulationFragment : Fragment() {
     }
 
     private fun verifyParameters(): Boolean {
-        val lbTemp = editTextTempLb.text.toString().toDoubleOrNull()
-        val ubTemp = editTextTempHb.text.toString().toDoubleOrNull()
-        val lbHum = editTextHumLb.text.toString().toDoubleOrNull()
-        val ubHum = editTextHumHb.text.toString().toDoubleOrNull()
+        val TempSp = editTextTempSp.text.toString().toDoubleOrNull()
+        val TempH = editTextTempH.text.toString().toDoubleOrNull()
+        val HumSp = editTextHumSp.text.toString().toDoubleOrNull()
+        val HumH = editTextHumH.text.toString().toDoubleOrNull()
 
-        if (lbTemp == null || ubTemp == null || lbHum == null || ubHum == null) {
+        if (TempSp == null || TempH == null || HumSp == null || HumH == null) {
             showToast("Please enter valid values for all fields")
             return false
         }
 
-        if (lbTemp < 0 || lbTemp > 100) {
-            showToast("Lower temperature limit must be between 5 and 25")
+        if (TempSp <= 0 || TempSp >= 100) {
+            showToast("Set temperature must be between 0 and 100")
             return false
         }
 
-        if (ubTemp < 0 || ubTemp > 100) {
-            showToast("Upper temperature limit must be between 0 and 100")
+        if (TempH <= 0.1 || TempH >= 10) {
+            showToast("Temperature hysteresis must be between 0.1 and 10")
             return false
         }
 
-        if (lbHum < 0 || lbHum > 100) {
-            showToast("Lower humidity limit must be between 0 and 100")
+        if (HumSp <= 0 || HumSp >= 110) {
+            showToast("Set humidity must must be between 0 and 110")
             return false
         }
 
-        if (ubHum < 0 || ubHum > 100) {
-            showToast("Upper humidity limit must be between 0 and 100")
-            return false
-        }
-
-        if (ubHum <= lbHum + 5) {
-            showToast("Upper humidity limit must be at least 5% higher than the lower limit")
-            return false
-        }
-
-        if (ubTemp <= lbTemp + 0.2) {
-            showToast("Upper temperature limit must be at least 0.2 degrees higher than the lower limit")
+        if (HumH <= 0.1 || HumH >= 20) {
+            showToast("Humidity hysteresis must be between 0.1 and 20")
             return false
         }
 

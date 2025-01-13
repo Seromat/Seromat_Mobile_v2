@@ -7,6 +7,19 @@
     tools:context=".ui.home.HomeFragment">
 
     <TextView
+        android:id="@+id/textViewAvgHumidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:text="@string/home_empty"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewHomeAvgHumidity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textViewHomeAvgHumidity"
+        app:layout_constraintTop_toTopOf="@+id/textViewHomeAvgHumidity" />
+
+    <TextView
         android:id="@+id/textViewMeasurementTemperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -79,28 +92,34 @@
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/temperatureChart"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="187dp"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewHomeHumidity"
-        app:layout_constraintBottom_toTopOf="@+id/humidityChart"
-        app:layout_constraintHeight_percent="0.3" />
+        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/humidifierStatusText" />
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/humidityChart"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temperatureChart"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.3" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/temperatureChart"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/coolerStatusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="48dp"
         android:text="Cooling: -"
         app:layout_constraintStart_toStartOf="@+id/textViewHomeHumidity"
         app:layout_constraintTop_toBottomOf="@+id/textViewHomeHumidity" />
@@ -114,5 +133,33 @@
         app:layout_constraintBottom_toBottomOf="@+id/coolerStatusText"
         app:layout_constraintStart_toEndOf="@+id/coolerStatusText"
         app:layout_constraintTop_toTopOf="@+id/coolerStatusText" />
+
+    <TextView
+        android:id="@+id/tempBoundariesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewMeasurementTemperature"
+        app:layout_constraintStart_toEndOf="@+id/textViewMeasurementTemperature"
+        app:layout_constraintTop_toTopOf="@+id/textViewMeasurementTemperature" />
+
+    <TextView
+        android:id="@+id/humBoundariesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewMeasurementHumidity"
+        app:layout_constraintStart_toStartOf="@+id/tempBoundariesText"
+        app:layout_constraintTop_toTopOf="@+id/textViewMeasurementHumidity" />
+
+    <TextView
+        android:id="@+id/textViewHomeAvgHumidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/avg_humidity"
+        app:layout_constraintStart_toStartOf="@+id/textViewHomeHumidity"
+        app:layout_constraintTop_toBottomOf="@+id/textViewHomeHumidity" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

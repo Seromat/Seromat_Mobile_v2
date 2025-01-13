@@ -28,13 +28,20 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-//musi być inna klasa, gdyż potrzebny jest format gdzie nazwy są z Dużej litery
-data class WeatherData(
+data class StatusData(
     val Date: String,
     val TemperatureC: Double,
     val Humidity: Double,
+    val AvgHumidity: Double,
     val CoolerStatus: String,
     val HumidifierStatus: String
+)
+
+data class Parameters(
+    val TempSp: Double,
+    val TempH: Double,
+    val HumSp: Double,
+    val HumH: Double
 )
 
 class HomeFragment : Fragment() {
@@ -43,8 +50,11 @@ class HomeFragment : Fragment() {
     private lateinit var dateText: TextView
     private lateinit var temperatureText: TextView
     private lateinit var humidityText: TextView
+    private lateinit var avgHumidityText: TextView
     private lateinit var coolerStatusText: TextView
     private lateinit var humidifierStatusText: TextView
+    private lateinit var tempBoundariesText: TextView
+    private lateinit var humBoundariesText: TextView
     private lateinit var temperatureChart: LineChart
     private lateinit var humidityChart: LineChart
     private val client = OkHttpClient()
@@ -61,16 +71,26 @@ class HomeFragment : Fragment() {
         dateText = root.findViewById(R.id.textViewMeasurementDate)
         temperatureText = root.findViewById(R.id.textViewMeasurementTemperature)
         humidityText = root.findViewById(R.id.textViewMeasurementHumidity)
+        avgHumidityText = root.findViewById(R.id.textViewAvgHumidity)
         coolerStatusText = root.findViewById(R.id.coolerStatusText)
         humidifierStatusText = root.findViewById(R.id.humidifierStatusText)
+
+        tempBoundariesText = root.findViewById(R.id.tempBoundariesText)
+        humBoundariesText = root.findViewById(R.id.humBoundariesText)
+
         temperatureChart = root.findViewById(R.id.temperatureChart)
         humidityChart = root.findViewById(R.id.humidityChart)
         handler = Handler(Looper.getMainLooper())
         configureCharts()
         loadDataFromDatabaseAndUpdateCharts()
-        startSendingRequests()
 
+        startSendingRequests()
         return root
+    }
+
+    override fun onStart() {
+        getParameters()
+        super.onStart()
     }
 
     private fun loadDataFromDatabaseAndUpdateCharts() {
@@ -79,7 +99,6 @@ class HomeFragment : Fragment() {
 
         temperatureEntries.clear()
         humidityEntries.clear()
-        //pętla typu foreach, które daje nam pozycje na wykresie(index) i pomiar
         for ((index, measurement) in measurements.withIndex()) {
             temperatureEntries.add(Entry(index.toFloat(), measurement.temperature.toFloat()))
             humidityEntries.add(Entry(index.toFloat(), measurement.humidity.toFloat()))
@@ -88,9 +107,8 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun configureCharts()
-    {
-       temperatureChart.description = null
+    private fun configureCharts() {
+        temperatureChart.description = null
         humidityChart.description = null
     }
 
@@ -119,50 +137,55 @@ class HomeFragment : Fragment() {
                     return
                 }
 
-                val request = buildRequest()
-                if(request == null)
-                {
+                val request = getSensorDataRequest()
+                if (request == null) {
                     return
                 }
                 client.newCall(request).enqueue(object : Callback {
-
                     override fun onFailure(call: Call, e: IOException) {
                         e.printStackTrace()
                     }
-
                     override fun onResponse(call: Call, response: Response) {
-                        Log.i("Response", "Received Response from server")
+                        Log.i("Response", "Request response received")
 
                         response.use {
                             if (!response.isSuccessful) {
-                                Log.e("HTTP Error", "Something didn't load, or wasn't successful")
+                                Log.e("HTTP Error", "HTTP response unsuccessful")
                                 return
                             }
-                            val body = response.body?.string()
+                            val body = response.body.string()
                             val gson = Gson()
-                            val weatherData = gson.fromJson(body, WeatherData::class.java)
+                            val statusData = gson.fromJson(body, StatusData::class.java)
                             if (!isAdded) {
                                 return
                             }
                             requireActivity().runOnUiThread {
-                                temperatureText.text = weatherData.TemperatureC.toString()
-                                humidityText.text = weatherData.Humidity.toString()
-                                coolerStatusText.text = "Cooling: " + weatherData.CoolerStatus;
-                                humidifierStatusText.text = "Humidifier: " + weatherData.HumidifierStatus;
+                                temperatureText.text = statusData.TemperatureC.toString()
+                                humidityText.text = statusData.Humidity.toString()
+                                avgHumidityText.text = String.format("%.1f", statusData.AvgHumidity)
+                                coolerStatusText.text = "Cooling: " + statusData.CoolerStatus;
+                                humidifierStatusText.text = "Humidifier: " + statusData.HumidifierStatus;
 
-                                val originalFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.UK)
-                                val targetFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK)
-                                val originalDate = originalFormat.parse(weatherData.Date)
+                                val originalFormat =
+                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.UK)
+                                val targetFormat =
+                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK)
+                                val originalDate = originalFormat.parse(statusData.Date)
                                 val formattedDate = targetFormat.format(originalDate)
                                 dateText.text = formattedDate
-                                dbManager.insertMeasurement(formattedDate, weatherData.TemperatureC, weatherData.Humidity)
+                                dbManager.insertMeasurement(
+                                    formattedDate,
+                                    statusData.TemperatureC,
+                                    statusData.Humidity
+                                )
                                 loadDataFromDatabaseAndUpdateCharts()
-                                }
                             }
                         }
-                    })
+                    }
+                })
 
-                val sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+                val sharedPreferences =
+                    requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
                 val interval = sharedPreferences.getInt("msInterval", 5000)
                 handler.postDelayed(this, interval.toLong())
             }
@@ -170,15 +193,66 @@ class HomeFragment : Fragment() {
         handler.post(runnable)
     }
 
-    private fun buildRequest(): Request? {
+    private fun getSensorDataRequest(): Request? {
         if (!isAdded) {
             Log.e("HomeFragment", "Fragment is not added to an activity.")
             return null
         }
-        val sharedPreferences: SharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        val sharedPreferences: SharedPreferences =
+            requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
         val ip = sharedPreferences.getString("ipAddress", "127.0.0.1") ?: "127.0.0.1"
 
         val url = "http://$ip:5000/sensor_data"
+        return Request.Builder()
+            .url(url)
+            .build()
+    }
+
+    private fun getParameters() {
+
+        val request = getParametersRequest()
+        if (request == null) {
+            return
+        }
+        client.newCall(request).enqueue(object : Callback {
+
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.i("Response", "Received Response from server")
+
+                response.use {
+                    if (!response.isSuccessful) {
+                        Log.e("HTTP Error", "HTTP response unsuccessful")
+                        return
+                    }
+                    val body = response.body.string()
+                    val gson = Gson()
+                    val parameters = gson.fromJson(body, Parameters::class.java)
+                    if (!isAdded) {
+                        return
+                    }
+                    requireActivity().runOnUiThread {
+                        tempBoundariesText.text = "(SP: ${parameters.TempSp} H: ${parameters.TempH})"
+                        humBoundariesText.text = "(SP: ${parameters.HumSp} H: ${parameters.HumH})"
+                    }
+                }
+            }
+        })
+    }
+
+    private fun getParametersRequest(): Request? {
+        if (!isAdded) {
+            Log.e("HomeFragment", "Fragment is not added to an activity.")
+            return null
+        }
+        val sharedPreferences: SharedPreferences =
+            requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        val ip = sharedPreferences.getString("ipAddress", "127.0.0.1") ?: "127.0.0.1"
+
+        val url = "http://$ip:5000/parameters"
         return Request.Builder()
             .url(url)
             .build()

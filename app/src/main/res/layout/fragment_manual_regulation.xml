@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <EditText
-        android:id="@+id/editTextTempLb"
+        android:id="@+id/editTextTempSp"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginStart="72dp"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewTempLb" />
 
     <EditText
-        android:id="@+id/editTextHumLb"
+        android:id="@+id/editTextHumSp"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginStart="72dp"
@@ -29,7 +29,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewHumLb" />
 
     <EditText
-        android:id="@+id/editTextTempHb"
+        android:id="@+id/editTextTempH"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginEnd="72dp"
@@ -37,10 +37,10 @@
         android:inputType="numberDecimal"
         android:hint="@string/ex_50"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editTextTempLb" />
+        app:layout_constraintTop_toTopOf="@+id/editTextTempSp" />
 
     <EditText
-        android:id="@+id/editTextHumHb"
+        android:id="@+id/editTextHumH"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
@@ -78,19 +78,19 @@
         android:id="@+id/textViewTempLb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
         android:layout_marginTop="16dp"
         android:text="@string/manual_lb"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTempSp"
+        app:layout_constraintStart_toStartOf="@+id/editTextTempSp"
         app:layout_constraintTop_toBottomOf="@+id/textViewTemperature" />
 
     <TextView
         android:id="@+id/textViewTempHb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="72dp"
         android:text="@string/manual_ub"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTempH"
+        app:layout_constraintStart_toStartOf="@+id/editTextTempH"
         app:layout_constraintTop_toTopOf="@+id/textViewTempLb" />
 
     <TextView
@@ -101,16 +101,16 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTempLb" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextTempSp" />
 
     <TextView
         android:id="@+id/textViewHumLb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
         android:layout_marginTop="32dp"
         android:text="@string/manual_lb"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTextHumSp"
+        app:layout_constraintStart_toStartOf="@+id/editTextHumSp"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <TextView
@@ -118,9 +118,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="80dp"
         android:text="@string/manual_ub"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTextHumH"
+        app:layout_constraintStart_toStartOf="@+id/editTextHumH"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <Button
@@ -132,7 +132,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextHumLb" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextHumSp" />
 
     <TextView
         android:id="@+id/textViewHomeTitle"
